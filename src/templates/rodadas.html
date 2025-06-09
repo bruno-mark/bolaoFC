@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Rodadas</h2>
+        <a href="{{ url_for('rounds.add_round') }}" class="btn btn-primary">Adicionar Rodada</a>
+    </div>
+    <div class="card-body">
+        {% if rounds %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Jogos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for round_id, round in rounds.items()|sort(attribute='1.numero') %}
+                        <tr>
+                            <td>{{ round.numero }}</td>
+                            <td>{{ round.jogos|length }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('rounds.view_round', round_id=round_id) }}" class="btn btn-sm btn-outline-primary">Visualizar</a>
+                                    <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ round.numero }}">
+                                        Remover
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Modal de confirmação para excluir rodada -->
+                        <div class="modal fade" id="deleteModal{{ round.numero }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ round.numero }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ round.numero }}">Confirmar exclusão</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Tem certeza que deseja excluir a Rodada {{ round.numero }}?
+                                        <br>Esta ação não pode ser desfeita e removerá todos os jogos e palpites associados.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <form action="{{ url_for('rounds.remove_round', round_id=round_id) }}" method="post">
+                                            <button type="submit" class="btn btn-danger">Excluir</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Nenhuma rodada cadastrada. <a href="{{ url_for('rounds.add_round') }}">Adicione uma rodada</a> para começar.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

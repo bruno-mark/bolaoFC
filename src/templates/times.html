@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Times Cadastrados</h2>
+        <a href="{{ url_for('teams.add_team') }}" class="btn btn-primary">Adicionar Time</a>
+    </div>
+    <div class="card-body">
+        {% if times %}
+            <div class="row">
+                {% for time in times %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header text-center">
+                            <h5>{{ time.nome }} ({{ time.sigla }})</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if time.escudo %}
+                                <img src="{{ url_for('static', filename=time.escudo) }}" alt="Escudo {{ time.nome }}" class="img-fluid mb-3" style="max-height: 100px;">
+                            {% else %}
+                                <div class="bg-light p-4 mb-3 d-flex align-items-center justify-content-center" style="height: 100px;">
+                                    <span class="text-muted">Sem escudo</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="btn-group">
+                                <a href="{{ url_for('teams.edit_team', team_id=time.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ time.id }}">
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal de confirmação para excluir time -->
+                <div class="modal fade" id="deleteModal{{ time.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ time.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel{{ time.id }}">Confirmar exclusão</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Tem certeza que deseja excluir o time <strong>{{ time.nome }}</strong>?
+                                <br>Esta ação não pode ser desfeita.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <form action="{{ url_for('teams.remove_team', team_id=time.id) }}" method="post">
+                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Nenhum time cadastrado. <a href="{{ url_for('teams.add_team') }}">Adicione um time</a> para começar.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

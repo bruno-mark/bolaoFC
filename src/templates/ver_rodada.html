@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <h2>Rodada {{ round.numero }}</h2>
+            <div class="ms-4">
+                <!-- Navegação entre rodadas -->
+                <div class="btn-group me-2">
+                    {% set prev_round = "rodada_" ~ (round.numero - 1) if round.numero > 1 else None %}
+                    {% set next_round = "rodada_" ~ (round.numero + 1) if round.numero < 38 else None %}
+                    
+                    <a href="{{ url_for('rounds.view_round', round_id=prev_round) }}" class="btn btn-outline-primary {% if not prev_round %}disabled{% endif %}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                    <a href="{{ url_for('rounds.view_round', round_id=next_round) }}" class="btn btn-outline-primary {% if not next_round %}disabled{% endif %}">
+                        Próxima <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Dropdown para seleção direta de rodadas -->
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownRodadas" data-bs-toggle="dropdown" aria-expanded="false">
+                        Selecionar Rodada
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownRodadas" style="max-height: 300px; overflow-y: auto;">
+                        {% for i in range(1, 39) %}
+                            {% set round_id = "rodada_" ~ i %}
+                            <li><a class="dropdown-item {% if round.numero == i %}active{% endif %}" href="{{ url_for('rounds.view_round', round_id=round_id) }}">Rodada {{ i }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}" class="btn btn-primary">Editar Rodada</a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if round.jogos %}
+            <div class="row">
+                {% for jogo in round.jogos %}
+                    {% set time_casa = teams|selectattr('id', 'equalto', jogo.time_casa)|first %}
+                    {% set time_visitante = teams|selectattr('id', 'equalto', jogo.time_visitante)|first %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header text-center">
+                                <small class="text-muted">{{ jogo.data }} - {{ jogo.horario }}</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row align-items-center text-center">
+                                    <div class="col-5">
+                                        <div class="mb-2">
+                                            {% if time_casa.escudo %}
+                                                <img src="{{ url_for('static', filename=time_casa.escudo) }}" alt="{{ time_casa.nome }}" class="img-fluid" style="max-height: 60px;">
+                                            {% endif %}
+                                        </div>
+                                        <h5>{{ time_casa.nome }}</h5>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="display-6">x</div>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="mb-2">
+                                            {% if time_visitante.escudo %}
+                                                <img src="{{ url_for('static', filename=time_visitante.escudo) }}" alt="{{ time_visitante.nome }}" class="img-fluid" style="max-height: 60px;">
+                                            {% endif %}
+                                        </div>
+                                        <h5>{{ time_visitante.nome }}</h5>
+                                    </div>
+                                </div>
+                                
+                                {% if jogo.resultado %}
+                                    <div class="text-center mt-3">
+                                        <div class="badge bg-primary p-2">
+                                            <span class="h5 mb-0">{{ jogo.resultado }}</span>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center mt-3">
+                                        <span class="badge bg-secondary">Aguardando resultado</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <h6 class="text-center mb-2">Palpites</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Participante</th>
+                                                <th>Palpite</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for participante, palpites in bets.items() %}
+                                                <tr>
+                                                    <td>{{ participante }}</td>
+                                                    <td>{{ palpites.get(jogo.id, '-') }}</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Nenhum palpite registrado</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Nenhum jogo cadastrado nesta rodada. <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}">Adicione jogos</a> para começar.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Classificação -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h2>Classificação Geral</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Participante</th>
+                        <th>Palpites</th>
+                        <th>Acerto Placar</th>
+                        <th>Acerto Resultado</th>
+                        <th>Erros</th>
+                        <th>Pontos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participante in classificacao %}
+                    <tr {% if loop.index0 < 3 %}class="highlight"{% endif %}>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ participante['Palpiterios'] }}</td>
+                        <td>{{ participante['Palpites'] }}</td>
+                        <td>
+                            {{ participante['Acerto Placar'] }}
+                            <span class="badge bg-success">{{ participante['Acerto Placar'] * 3 }} pts</span>
+                        </td>
+                        <td>
+                            {{ participante['Acerto Result'] }}
+                            <span class="badge bg-warning">{{ participante['Acerto Result'] }} pts</span>
+                        </td>
+                        <td>{{ participante['Erros'] }}</td>
+                        <td><strong>{{ participante['Pontos'] }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Adicionar animação para destacar os três primeiros colocados
+        setTimeout(function() {
+            $('tr.highlight').each(function(index) {
+                $(this).addClass('animate__animated animate__pulse');
+            });
+        }, 500);
+    });
+</script>
+{% endblock %}

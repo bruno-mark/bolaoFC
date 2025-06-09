@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Administração - BrasileirinhasFC</h2>
+    </div>
+    <div class="card-body">
+        <!-- Seletor de Rodadas -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="rodada_selector" class="form-label">Selecionar Rodada:</label>
+                <div class="input-group">
+                    <select class="form-select" id="rodada_selector" onchange="window.location.href='{{ url_for('main.admin') }}?round_id=' + this.value">
+                        {% for round_id, round_data in rodadas.items()|sort(attribute='1.numero') %}
+                            <option value="{{ round_id }}" {% if round_id == round_id %}selected{% endif %}>
+                                Rodada {{ round_data.numero }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}" class="btn btn-outline-secondary">
+                        Editar Rodada
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 text-end align-self-end">
+                <div class="btn-group">
+                    {% set prev_round = "rodada_" ~ (rodada.numero - 1) if rodada.numero > 1 else None %}
+                    {% set next_round = "rodada_" ~ (rodada.numero + 1) if rodada.numero < 38 else None %}
+                    
+                    <a href="{{ url_for('main.admin', round_id=prev_round) }}" class="btn btn-outline-primary {% if not prev_round %}disabled{% endif %}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                    <a href="{{ url_for('main.admin', round_id=next_round) }}" class="btn btn-outline-primary {% if not next_round %}disabled{% endif %}">
+                        Próxima <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exibição dos Jogos da Rodada -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h4>Jogos da Rodada {{ rodada.numero }}</h4>
+            </div>
+            <div class="card-body">
+                {% if rodada.jogos %}
+                    <div class="row">
+                        {% for jogo in rodada.jogos %}
+                            {% set time_casa = times|selectattr('id', 'equalto', jogo.time_casa)|first %}
+                            {% set time_visitante = times|selectattr('id', 'equalto', jogo.time_visitante)|first %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header text-center">
+                                        <small class="text-muted">{{ jogo.data }} - {{ jogo.horario }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row align-items-center text-center">
+                                            <div class="col-5">
+                                                <div class="mb-2">
+                                                    {% if time_casa.escudo %}
+                                                        <img src="{{ url_for('static', filename=time_casa.escudo) }}" alt="{{ time_casa.nome }}" class="img-fluid" style="max-height: 40px;">
+                                                    {% endif %}
+                                                </div>
+                                                <h6>{{ time_casa.nome }}</h6>
+                                            </div>
+                                            <div class="col-2">
+                                                <div class="h5">x</div>
+                                            </div>
+                                            <div class="col-5">
+                                                <div class="mb-2">
+                                                    {% if time_visitante.escudo %}
+                                                        <img src="{{ url_for('static', filename=time_visitante.escudo) }}" alt="{{ time_visitante.nome }}" class="img-fluid" style="max-height: 40px;">
+                                                    {% endif %}
+                                                </div>
+                                                <h6>{{ time_visitante.nome }}</h6>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if jogo.resultado %}
+                                            <div class="text-center mt-3">
+                                                <div class="badge bg-primary p-2">
+                                                    <span class="h5 mb-0">{{ jogo.resultado }}</span>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-center mt-3">
+                                                <span class="badge bg-secondary">Aguardando resultado</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Nenhum jogo cadastrado nesta rodada. <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}">Adicione jogos</a> para começar.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button" role="tab" aria-controls="edit" aria-selected="true">Editar Palpites</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button" role="tab" aria-controls="results" aria-selected="false">Atualizar Resultados</button>
+            </li>
+        </ul>
+        <div class="tab-content p-3" id="adminTabsContent">
+            <div class="tab-pane fade show active" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+                <h3 class="mb-4">Editar Palpites</h3>
+                
+                {% if rodada.jogos %}
+                    <div class="row">
+                        {% for jogo in rodada.jogos %}
+                            {% set time_casa = times|selectattr('id', 'equalto', jogo.time_casa)|first %}
+                            {% set time_visitante = times|selectattr('id', 'equalto', jogo.time_visitante)|first %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>{{ time_casa.nome }} x {{ time_visitante.nome }}</span>
+                                            {% if jogo.resultado %}
+                                                <span class="badge bg-primary">{{ jogo.resultado }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="post" action="{{ url_for('main.admin', round_id=round_id) }}" class="mb-2">
+                                            <input type="hidden" name="jogo_id" value="{{ jogo.id }}">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <select class="form-select form-select-sm" name="participante" required>
+                                                        <option value="">Selecione participante</option>
+                                                        {% for p in participantes %}
+                                                            <option value="{{ p }}">{{ p }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="text" class="form-control" name="palpite" placeholder="Ex: Nome (2x1) Time" required>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Salvar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        
+                                        <div class="table-responsive mt-3">
+                                            <table class="table table-sm table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Participante</th>
+                                                        <th>Palpite</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for participante, palpites in palpites.items() %}
+                                                        {% if jogo.id in palpites %}
+                                                            <tr>
+                                                                <td>{{ participante }}</td>
+                                                                <td>{{ palpites[jogo.id] }}</td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <tr>
+                                                            <td colspan="2" class="text-center">Nenhum palpite registrado</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Nenhum jogo cadastrado nesta rodada. <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}">Adicione jogos</a> para começar.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="tab-pane fade" id="results" role="tabpanel" aria-labelledby="results-tab">
+                <h3 class="mb-4">Atualizar Resultados e Recalcular Pontuação</h3>
+                
+                {% if rodada.jogos %}
+                    <form method="post" action="{{ url_for('main.atualizar_classificacao') }}">
+                        <div class="row">
+                            {% for jogo in rodada.jogos %}
+                                {% set time_casa = times|selectattr('id', 'equalto', jogo.time_casa)|first %}
+                                {% set time_visitante = times|selectattr('id', 'equalto', jogo.time_visitante)|first %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header">{{ time_casa.nome }} x {{ time_visitante.nome }}</div>
+                                        <div class="card-body">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="resultado_{{ jogo.id }}" name="resultado_{{ jogo.id }}" placeholder="Ex: 2x1" value="{{ jogo.resultado }}">
+                                                <a href="{{ url_for('rounds.update_match_result', round_id=round_id, match_id=jogo.id) }}" 
+                                                   onclick="event.preventDefault(); updateResult('{{ round_id }}', '{{ jogo.id }}');" 
+                                                   class="btn btn-outline-primary">Atualizar</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-primary" onclick="updateAllResults('{{ round_id }}')">Atualizar Todos os Resultados</button>
+                            <button type="submit" class="btn btn-success">Recalcular Classificação</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="alert alert-info">
+                        Nenhum jogo cadastrado nesta rodada. <a href="{{ url_for('rounds.edit_round', round_id=round_id) }}">Adicione jogos</a> para começar.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Ativar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+    
+    // Função para atualizar o resultado de um jogo
+    function updateResult(roundId, matchId) {
+        var resultado = document.getElementById('resultado_' + matchId).value;
+        if (!resultado) {
+            alert('Por favor, informe o resultado no formato NxN (ex: 2x1)');
+            return;
+        }
+        
+        // Criar um formulário temporário para enviar o POST
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url_for("rounds.update_match_result", round_id="ROUND_ID", match_id="MATCH_ID") }}'.replace('ROUND_ID', roundId).replace('MATCH_ID', matchId);
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'resultado';
+        input.value = resultado;
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Função para atualizar todos os resultados
+    function updateAllResults(roundId) {
+        // Implementação futura para atualizar todos os resultados de uma vez
+        alert('Esta funcionalidade será implementada em breve. Por enquanto, atualize os resultados individualmente.');
+    }
+</script>
+{% endblock %}

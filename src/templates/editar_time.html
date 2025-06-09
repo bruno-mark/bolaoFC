@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Editar Time</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome do Time</label>
+                <input type="text" class="form-control" id="nome" name="nome" value="{{ team.nome }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="sigla" class="form-label">Sigla</label>
+                <input type="text" class="form-control" id="sigla" name="sigla" maxlength="3" value="{{ team.sigla }}" required>
+                <div class="form-text">Sigla de 2 a 3 letras (ex: FLA, PAL, COR)</div>
+            </div>
+            <div class="mb-3">
+                <label for="escudo" class="form-label">Escudo</label>
+                {% if team.escudo %}
+                    <div class="mb-2">
+                        <img src="{{ url_for('static', filename=team.escudo) }}" alt="Escudo atual" class="img-thumbnail" style="max-height: 100px;">
+                        <div class="form-text">Escudo atual</div>
+                    </div>
+                {% endif %}
+                <input type="file" class="form-control" id="escudo" name="escudo" accept="image/*">
+                <div class="form-text">Envie um novo escudo para substituir o atual (opcional)</div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('teams.list_teams') }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

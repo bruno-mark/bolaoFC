@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Editar Rodada {{ round.numero }}</h2>
+        <div>
+            <a href="{{ url_for('rounds.view_round', round_id=round_id) }}" class="btn btn-outline-primary">Visualizar</a>
+            <a href="{{ url_for('rounds.list_rounds') }}" class="btn btn-outline-secondary">Voltar</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <h3 class="mb-4">Jogos da Rodada</h3>
+        
+        {% if round.jogos %}
+            <div class="table-responsive mb-4">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Mandante</th>
+                            <th></th>
+                            <th>Visitante</th>
+                            <th>Data</th>
+                            <th>Horário</th>
+                            <th>Resultado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jogo in round.jogos %}
+                            {% set time_casa = teams|selectattr('id', 'equalto', jogo.time_casa)|first %}
+                            {% set time_visitante = teams|selectattr('id', 'equalto', jogo.time_visitante)|first %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if time_casa.escudo %}
+                                            <img src="{{ url_for('static', filename=time_casa.escudo) }}" alt="{{ time_casa.nome }}" class="me-2" style="height: 30px;">
+                                        {% endif %}
+                                        {{ time_casa.nome }}
+                                    </div>
+                                </td>
+                                <td class="text-center">x</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if time_visitante.escudo %}
+                                            <img src="{{ url_for('static', filename=time_visitante.escudo) }}" alt="{{ time_visitante.nome }}" class="me-2" style="height: 30px;">
+                                        {% endif %}
+                                        {{ time_visitante.nome }}
+                                    </div>
+                                </td>
+                                <td>{{ jogo.data }}</td>
+                                <td>{{ jogo.horario }}</td>
+                                <td>
+                                    <form action="{{ url_for('rounds.update_match_result', round_id=round_id, match_id=jogo.id) }}" method="post" class="d-flex">
+                                        <input type="text" class="form-control form-control-sm" name="resultado" value="{{ jogo.resultado }}" placeholder="NxN" style="width: 70px;">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">✓</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('rounds.remove_match', round_id=round_id, match_id=jogo.id) }}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover este jogo?')">Remover</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mb-4">
+                Nenhum jogo cadastrado nesta rodada. Adicione jogos abaixo.
+            </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h4>Adicionar Jogo</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('rounds.add_match', round_id=round_id) }}" method="post">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label for="time_casa" class="form-label">Time Mandante</label>
+                                <select class="form-select" id="time_casa" name="time_casa" required>
+                                    <option value="">Selecione o time da casa</option>
+                                    {% for time in teams %}
+                                        <option value="{{ time.id }}">{{ time.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center justify-content-center">
+                            <span class="h4 mt-3">x</span>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label for="time_visitante" class="form-label">Time Visitante</label>
+                                <select class="form-select" id="time_visitante" name="time_visitante" required>
+                                    <option value="">Selecione o time visitante</option>
+                                    {% for time in teams %}
+                                        <option value="{{ time.id }}">{{ time.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="data" class="form-label">Data</label>
+                                <input type="date" class="form-control" id="data" name="data" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="horario" class="form-label">Horário</label>
+                                <input type="time" class="form-control" id="horario" name="horario" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Adicionar Jogo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Validar que times diferentes sejam selecionados
+        $('form').submit(function() {
+            var timeCasa = $('#time_casa').val();
+            var timeVisitante = $('#time_visitante').val();
+            
+            if (timeCasa === timeVisitante) {
+                alert('Os times da casa e visitante não podem ser iguais!');
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %}
