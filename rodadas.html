@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Rodadas - Sistema de Palpites</title>
+    <link rel="stylesheet" href="rodadas.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">🏆 Sistema de Palpites</div>
+        <div class="header-controls">
+            <a href="#" class="btn btn-primary">⚙️ Configurações</a>
+            <a href="#" class="btn btn-primary">👤 Perfil</a>
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu de Administração</div>
+        </div>
+        <a href="index.html" class="nav-item active">📊 Classificação</a>
+        <a href="rodadas.html" class="nav-item">🎯 Administrar Rodadas</a>
+        <a href="#" class="nav-item">⚽ Administrar Times</a>
+        <a href="#" class="nav-item">🎲 Administrar Palpites</a>
+        <a href="#" class="nav-item">📈 Relatórios</a>
+        <a href="#" class="nav-item">👥 Usuários</a>
+    </nav>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Administrar Rodadas</h1>
+            <button class="btn btn-success" onclick="openNewRodadaModal()">
+                ➕ Nova Rodada
+            </button>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            ✅ Rodada criada com sucesso!
+        </div>
+
+        <!-- Rodadas Existentes -->
+        <div class="card">
+            <h2 class="card-title">🏆 Rodadas Cadastradas</h2>
+            <div class="table-responsive">
+                <table class="rodadas-table">
+                    <thead>
+                        <tr>
+                            <th>Rodada</th>
+                            <th>Campeonato</th>
+                            <th>Confrontos</th>
+                            <th>Status</th>
+                            <th>Data Criação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rodadasTableBody">
+                        <tr>
+                            <td><strong>Rodada 1</strong></td>
+                            <td>Campeonato Brasileiro 2024</td>
+                            <td>5 confrontos</td>
+                            <td><span class="status-badge status-ativa">Ativa</span></td>
+                            <td>15/06/2024</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editRodada(1)">✏️ Editar</button>
+                                <button class="btn btn-danger" onclick="deleteRodada(1)">🗑️ Excluir</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rodada 2</strong></td>
+                            <td>Campeonato Brasileiro 2024</td>
+                            <td>5 confrontos</td>
+                            <td><span class="status-badge status-aguardando">Aguardando</span></td>
+                            <td>20/06/2024</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editRodada(2)">✏️ Editar</button>
+                                <button class="btn btn-danger" onclick="deleteRodada(2)">🗑️ Excluir</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Nova Rodada -->
+    <div class="modal" id="newRodadaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Criar Nova Rodada</h2>
+                <button class="close-modal" onclick="closeNewRodadaModal()">✕</button>
+            </div>
+
+            <form id="newRodadaForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Campeonato</label>
+                        <select class="form-control" id="campeonato" required>
+                            <option value="">Selecione o campeonato</option>
+                            <option value="brasileiro2024">Campeonato Brasileiro 2024</option>
+                            <option value="libertadores2024">Copa Libertadores 2024</option>
+                            <option value="copa2024">Copa do Brasil 2024</option>
+                            <option value="estadual2024">Campeonato Paulista 2024</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número da Rodada</label>
+                        <input type="number" class="form-control" id="numeroRodada" min="1" max="50" required>
+                    </div>
+                </div>
+
+                <div class="confrontos-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>⚽ Confrontos</h3>
+                        <button type="button" class="btn btn-primary" onclick="addConfronto()">
+                            ➕ Adicionar Confronto
+                        </button>
+                    </div>
+
+                    <div id="confrontosContainer">
+                        <!-- Confrontos serão adicionados aqui dinamicamente -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-danger" onclick="closeNewRodadaModal()">
+                        ❌ Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        ✅ Criar Rodada
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="rodadas.js"></script>
+</body>
+</html>
