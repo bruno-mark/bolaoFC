@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Times | Sistema de Palpites</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/times.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">🏆 Brasileirinhas F.C.</a>
+        <div class="header-controls">
+            <a href="#" class="btn btn-primary">⚙️ Configurações</a>
+            <a href="#" class="btn btn-primary">👤 Perfil</a>
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu de Administração</div>
+        </div>
+        <a href="index.html" class="nav-item">📊 Classificação</a>
+        <a href="rodadas.html" class="nav-item">🎯 Administrar Rodadas</a>
+        <a href="times.html" class="nav-item active">⚽ Administrar Times</a>
+        <a href="#" class="nav-item">🎲 Administrar Palpites</a>
+        <a href="#" class="nav-item">👥 Usuários</a>
+    </nav>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">Administrar Times</h1>
+        
+        <!-- Teams Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2 class="table-title">Lista de Times</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="openAddTeamModal()">➕ Adicionar Time</button>
+                    <button class="btn btn-info" onclick="refreshTeams()">🔄 Atualizar</button>
+                </div>
+            </div>
+            
+            <table class="teams-table">
+                <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Nome do Time</th>
+                        <th>Código</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="teamsTableBody">
+                    <tr>
+                        <td><img src="https://via.placeholder.com/40" alt="Time A" class="team-logo"></td>
+                        <td class="team-name">Time A</td>
+                        <td>TMA</td>
+                        <td class="status-active">Ativo</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditTeamModal(1)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="confirmDeleteTeam(1)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><img src="https://via.placeholder.com/40" alt="Time B" class="team-logo"></td>
+                        <td class="team-name">Time B</td>
+                        <td>TMB</td>
+                        <td class="status-active">Ativo</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditTeamModal(2)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="confirmDeleteTeam(2)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><img src="https://via.placeholder.com/40" alt="Time C" class="team-logo"></td>
+                        <td class="team-name">Time C</td>
+                        <td>TMC</td>
+                        <td class="status-inactive">Inativo</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditTeamModal(3)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="confirmDeleteTeam(3)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><img src="https://via.placeholder.com/40" alt="Time D" class="team-logo"></td>
+                        <td class="team-name">Time D</td>
+                        <td>TMD</td>
+                        <td class="status-active">Ativo</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditTeamModal(4)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="confirmDeleteTeam(4)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><img src="https://via.placeholder.com/40" alt="Time E" class="team-logo"></td>
+                        <td class="team-name">Time E</td>
+                        <td>TME</td>
+                        <td class="status-active">Ativo</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="openEditTeamModal(5)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="confirmDeleteTeam(5)">🗑️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Add Team Modal -->
+    <div class="modal" id="addTeamModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Novo Time</h3>
+                <button class="close-btn" onclick="closeAddTeamModal()">&times;</button>
+            </div>
+            <form id="addTeamForm">
+                <div class="form-group">
+                    <label for="teamName" class="form-label">Nome do Time</label>
+                    <input type="text" id="teamName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="teamCode" class="form-label">Código do Time (3 letras)</label>
+                    <input type="text" id="teamCode" class="form-control" maxlength="3" required>
+                </div>
+                <div class="form-group">
+                    <label for="teamLogo" class="form-label">URL do Logo</label>
+                    <input type="url" id="teamLogo" class="form-control" placeholder="https://exemplo.com/logo.png">
+                </div>
+                <div class="form-group">
+                    <label for="teamStatus" class="form-label">Status</label>
+                    <select id="teamStatus" class="form-control" required>
+                        <option value="active">Ativo</option>
+                        <option value="inactive">Inativo</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="closeAddTeamModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Time</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Team Modal -->
+    <div class="modal" id="editTeamModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Time</h3>
+                <button class="close-btn" onclick="closeEditTeamModal()">&times;</button>
+            </div>
+            <form id="editTeamForm">
+                <input type="hidden" id="editTeamId">
+                <div class="form-group">
+                    <label for="editTeamName" class="form-label">Nome do Time</label>
+                    <input type="text" id="editTeamName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTeamCode" class="form-label">Código do Time (3 letras)</label>
+                    <input type="text" id="editTeamCode" class="form-control" maxlength="3" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTeamLogo" class="form-label">URL do Logo</label>
+                    <input type="url" id="editTeamLogo" class="form-control" placeholder="https://exemplo.com/logo.png">
+                </div>
+                <div class="form-group">
+                    <label for="editTeamStatus" class="form-label">Status</label>
+                    <select id="editTeamStatus" class="form-control" required>
+                        <option value="active">Ativo</option>
+                        <option value="inactive">Inativo</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="closeEditTeamModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+                <button class="close-btn" onclick="closeDeleteConfirmModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <p>Tem certeza que deseja excluir este time? Esta ação não pode ser desfeita.</p>
+                <input type="hidden" id="deleteTeamId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" onclick="closeDeleteConfirmModal()">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="deleteTeam()">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Team management functions
+        function refreshTeams() {
+            // Simulate loading
+            const refreshBtn = document.querySelector('.btn-info');
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<span class="loading"></span> Atualizando...';
+            
+            // In a real app, this would fetch data from an API
+            setTimeout(() => {
+                refreshBtn.innerHTML = originalText;
+                alert('Lista de times atualizada com sucesso!');
+            }, 1000);
+        }
+
+        function openAddTeamModal() {
+            document.getElementById('addTeamModal').style.display = 'flex';
+        }
+
+        function closeAddTeamModal() {
+            document.getElementById('addTeamModal').style.display = 'none';
+        }
+
+        function openEditTeamModal(teamId) {
+            // In a real app, this would fetch team data from an API
+            const team = {
+                id: teamId,
+                name: `Time ${String.fromCharCode(64 + teamId)}`,
+                code: `TM${String.fromCharCode(64 + teamId)}`,
+                logo: 'https://via.placeholder.com/40',
+                status: teamId === 3 ? 'inactive' : 'active'
+            };
+            
+            document.getElementById('editTeamId').value = team.id;
+            document.getElementById('editTeamName').value = team.name;
+            document.getElementById('editTeamCode').value = team.code;
+            document.getElementById('editTeamLogo').value = team.logo;
+            document.getElementById('editTeamStatus').value = team.status;
+            
+            document.getElementById('editTeamModal').style.display = 'flex';
+        }
+
+        function closeEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'none';
+        }
+
+        function confirmDeleteTeam(teamId) {
+            document.getElementById('deleteTeamId').value = teamId;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+        }
+
+        function deleteTeam() {
+            const teamId = document.getElementById('deleteTeamId').value;
+            // In a real app, this would call an API to delete the team
+            console.log(`Time com ID ${teamId} excluído`);
+            closeDeleteConfirmModal();
+            alert(`Time excluído com sucesso!`);
+        }
+
+        // Form submissions
+        document.getElementById('addTeamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real app, this would send data to an API
+            console.log('Novo time adicionado:', {
+                name: document.getElementById('teamName').value,
+                code: document.getElementById('teamCode').value,
+                logo: document.getElementById('teamLogo').value,
+                status: document.getElementById('teamStatus').value
+            });
+            closeAddTeamModal();
+            alert('Time adicionado com sucesso!');
+        });
+
+        document.getElementById('editTeamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // In a real app, this would send data to an API
+            console.log('Time atualizado:', {
+                id: document.getElementById('editTeamId').value,
+                name: document.getElementById('editTeamName').value,
+                code: document.getElementById('editTeamCode').value,
+                logo: document.getElementById('editTeamLogo').value,
+                status: document.getElementById('editTeamStatus').value
+            });
+            closeEditTeamModal();
+            alert('Time atualizado com sucesso!');
+        });
+    </script>
+</body>
+</html>

@@ -33,3 +33,5 @@ app.listen(port, function () {
 app.get('/', (req, res) => {
   res.send('🚀 API rodando com sucesso!');
 });
+
+require('./src/routes/api.js')(app, pool);
