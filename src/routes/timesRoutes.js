@@ -6,7 +6,14 @@
 
 const express = require('express');
 const router = express.Router(); // MUITO IMPORTANTE: Usar express.Router()
-const pool = require('../../db'); // << Seu arquivo de conexão com o Supabase/Postgres
+const { Pool } = require("pg");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 // ROTA: GET /api/times (Busca todos os times)
 router.get('/', async (req, res) => {
