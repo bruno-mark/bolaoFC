@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Times | Brasileirinhas F.C.</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/times.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <a href="../index.html" class="logo">🏆 Brasileirinhas F.C.</a>
+        </div>
+        <div class="header-controls">
+            <a href="#" class="btn btn-primary">⚙️ Configurações</a>
+            <a href="#" class="btn btn-primary">👤 Perfil</a>
+        </div>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu de Administração</div>
+        </div>
+        <a href="../index.html" class="nav-item">📊 Classificação</a>
+        <a href="rodadas.html" class="nav-item">🎯 Administrar Rodadas</a>
+        <a href="times.html" class="nav-item active">⚽ Administrar Times</a>
+        <a href="#" class="nav-item">🎲 Administrar Palpites</a>
+        <a href="#" class="nav-item">👥 Usuários</a>
+    </nav>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <h1 class="page-title">Administrar Times</h1>
+
+        <div class="card">
+            <h2 class="card-title" id="form-title">➕ Adicionar Novo Time</h2>
+            <form id="time-form" class="form-grid">
+                <input type="hidden" id="time-id">
+                <div class="form-group">
+                    <label for="nome-time" class="form-label">Nome do Time</label>
+                    <input type="text" id="nome-time" class="form-control" placeholder="Ex: Palmeiras" required>
+                </div>
+                <div class="form-group">
+                    <label for="url-escudo" class="form-label">URL do Escudo</label>
+                    <input type="url" id="url-escudo" class="form-control" placeholder="https://.../escudo.png" required>
+                </div>
+                <div class="form-group-full">
+                    <button type="submit" class="btn btn-success">Salvar Time</button>
+                    <button type="button" id="cancel-edit-btn" class="btn btn-danger" style="display: none;">Cancelar Edição</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h2 class="table-title">Lista de Times</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-info" id="refresh-teams-btn">🔄 Atualizar</button>
+                </div>
+            </div>
+            
+            <table class="teams-table">
+                <thead>
+                    <tr>
+                        <th>Escudo</th>
+                        <th>Nome do Time</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="teamsTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="../js/index.js"></script> <script src="../js/times.js"></script>
+</body>
+</html>

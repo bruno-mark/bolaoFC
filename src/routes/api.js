@@ -26,25 +26,7 @@ module.exports = (app, pool) => {
     }
     });
 
-    ////////////////////
-    // Rotas de Times///
-    ////////////////////
-
-    app.get('/api/times', async (req, res) => {
-    try {
-        const query = `
-        SELECT t.*, c.nome as campeonato_nome 
-        FROM times t
-        JOIN campeonatos c ON t.campeonato_id = c.id
-        ORDER BY t.nome
-        `;
-        const { rows } = await pool.query(query);
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erro ao buscar times' });
-    }
-    });
+    
 
     /////////////////////
     // Rotas de Rodadas//

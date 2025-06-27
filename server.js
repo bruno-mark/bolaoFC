@@ -1,17 +1,21 @@
 // Importa o framework Express para criar e gerenciar o servidor web
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
+const app = express();
+const apiRoutes = require('./src/routes/index'); 
 
 const { Pool } = require("pg");
-const cors = require("cors");
 
 dotenv.config();
 
 // Cria uma instância do aplicativo Express
-const app = express();
 const port = process.env.PORT;
 app.use(cors());
 app.use(express.json()); 
+
+// Rota principal da API
+app.use('/api', apiRoutes);
 
 // Coneta ao banco de dados PostgreSQL
 const pool = new Pool({
@@ -34,4 +38,4 @@ app.get('/', (req, res) => {
   res.send('🚀 API rodando com sucesso!');
 });
 
-require('./src/routes/api.js')(app, pool);
+//require('./src/routes/api.js')(app, pool);
